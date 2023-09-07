@@ -326,10 +326,12 @@ class MaterialDesktopVideoControlsThemeData {
 class MaterialDesktopVideoControlsTheme extends InheritedWidget {
   final MaterialDesktopVideoControlsThemeData normal;
   final MaterialDesktopVideoControlsThemeData fullscreen;
+  final Widget? overlayVideo;
   const MaterialDesktopVideoControlsTheme({
     super.key,
     required this.normal,
     required this.fullscreen,
+    this.overlayVideo,
     required super.child,
   });
 
@@ -502,7 +504,10 @@ class _MaterialDesktopVideoControlsState
                 controller(context).player.setVolume(volume.clamp(0.0, 100.0));
               },
               const SingleActivator(LogicalKeyboardKey.keyF): () =>
-                  toggleFullscreen(context),
+                  toggleFullscreen(
+                      context,
+                      MaterialDesktopVideoControlsTheme.of(context)
+                          .overlayVideo),
               const SingleActivator(LogicalKeyboardKey.escape): () =>
                   exitFullscreen(context),
             },
@@ -543,7 +548,10 @@ class _MaterialDesktopVideoControlsState
                     final difference = now.difference(last);
                     last = now;
                     if (difference < const Duration(milliseconds: 400)) {
-                      toggleFullscreen(context);
+                      toggleFullscreen(
+                          context,
+                          MaterialDesktopVideoControlsTheme.of(context)
+                              .overlayVideo);
                     }
                   }
                 },
@@ -1106,7 +1114,8 @@ class MaterialDesktopFullscreenButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      onPressed: () => toggleFullscreen(context),
+      onPressed: () => toggleFullscreen(
+          context, MaterialDesktopVideoControlsTheme.of(context).overlayVideo),
       icon: icon ??
           (isFullscreen(context)
               ? const Icon(Icons.fullscreen_exit)

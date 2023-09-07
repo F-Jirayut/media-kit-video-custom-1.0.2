@@ -114,7 +114,7 @@ class VideoState extends State<Video> {
   }
 
   Future<void> enterFullscreen() {
-    return media_kit_video_controls.enterFullscreen(context);
+    return media_kit_video_controls.enterFullscreen(context, null);
   }
 
   Future<void> exitFullscreen() {
@@ -122,7 +122,7 @@ class VideoState extends State<Video> {
   }
 
   Future<void> toggleFullscreen() {
-    return media_kit_video_controls.toggleFullscreen(context);
+    return media_kit_video_controls.toggleFullscreen(context, null);
   }
 
   @override

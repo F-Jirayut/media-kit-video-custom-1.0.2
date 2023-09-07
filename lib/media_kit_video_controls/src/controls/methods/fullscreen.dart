@@ -4,12 +4,13 @@
 /// All rights reserved.
 /// Use of this source code is governed by MIT license that can be found in the LICENSE file.
 import 'dart:io';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-
+import 'package:flutter/material.dart';
 import 'package:media_kit_video/media_kit_video_controls/utils/dart_html/dart_html.dart';
 import 'package:media_kit_video/media_kit_video_controls/src/controls/methods/video_controller.dart';
 import 'package:media_kit_video/media_kit_video_controls/src/controls/widgets/fullscreen_inherited_widget.dart';
@@ -19,7 +20,7 @@ bool isFullscreen(BuildContext context) =>
     FullscreenInheritedWidget.maybeOf(context) != null;
 
 /// Makes the [Video] present in the current [BuildContext] enter fullscreen.
-Future<void> enterFullscreen(BuildContext context) {
+Future<void> enterFullscreen(BuildContext context, Widget? overlayVideo) {
   return lock.synchronized(() async {
     if (!isFullscreen(context)) {
       if (context.mounted) {
@@ -29,20 +30,28 @@ Future<void> enterFullscreen(BuildContext context) {
             pageBuilder: (_, __, ___) => (builder ?? (e) => e).call(
               FullscreenInheritedWidget(
                 parent: state(context),
-                child: Video(
-                  controller: controller(context),
-                  // Not required in fullscreen mode:
-                  // width: null,
-                  // height: null,
-                  // Inherit following properties from the parent [Video]:
-                  fit: state(context).widget.fit,
-                  fill: state(context).widget.fill,
-                  alignment: state(context).widget.alignment,
-                  aspectRatio: state(context).widget.aspectRatio,
-                  filterQuality: state(context).widget.filterQuality,
-                  controls: state(context).widget.controls,
-                  // Do not acquire or modify existing wakelock in fullscreen mode:
-                  wakelock: false,
+                child: Scaffold(
+                  body: Stack(
+                    children: [
+                      // Video player
+                      Video(
+                        controller: controller(context),
+                        // Not required in fullscreen mode:
+                        // width: null,
+                        // height: null,
+                        // Inherit following properties from the parent [Video]:
+                        fit: state(context).widget.fit,
+                        fill: state(context).widget.fill,
+                        alignment: state(context).widget.alignment,
+                        aspectRatio: state(context).widget.aspectRatio,
+                        filterQuality: state(context).widget.filterQuality,
+                        controls: state(context).widget.controls,
+                        // Do not acquire or modify existing wakelock in fullscreen mode:
+                        wakelock: false,
+                      ),
+                      overlayVideo!,
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -73,11 +82,11 @@ Future<void> exitFullscreen(BuildContext context) {
 }
 
 /// Toggles fullscreen for the [Video] present in the current [BuildContext].
-Future<void> toggleFullscreen(BuildContext context) {
+Future<void> toggleFullscreen(BuildContext context, Widget? overlayVideo) {
   if (isFullscreen(context)) {
     return exitFullscreen(context);
   } else {
-    return enterFullscreen(context);
+    return enterFullscreen(context, overlayVideo!);
   }
 }
 
